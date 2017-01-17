@@ -1,0 +1,29 @@
+{
+  "name": "socialmessage-api",
+  "version": "0.0.1",
+  "private": true,
+  "description": "New Swagger API Project",
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "main": "app.js",
+  "dependencies": {
+    "dotenv": "^4.0.0",
+    "express": "^4.12.3",
+    "fs": "0.0.1-security",
+    "https": "^1.0.0",
+    "mongoose": "^4.7.6",
+    "promise": "^7.1.1",
+    "q": "^1.4.1",
+    "swagger-express-mw": "^0.1.0",
+    "swagger-mongoose": "^1.1.2"
+  },
+  "devDependencies": {
+    "should": "^7.1.0",
+    "supertest": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "test": "swagger project test"
+  }
+}

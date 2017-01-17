@@ -1,0 +1,250 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Social Message API
+# during dev, should point to your local machine
+host: localhost:10010
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /hello:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: hello_world
+    get:
+      description: Returns 'Hello' to the caller
+      # used as the method name of the controller
+      operationId: hello
+      parameters:
+        - name: name
+          in: query
+          description: The name of the person to whom to say hello
+          required: false
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/HelloWorldResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GeneralResponse"
+  /feeds:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: feed
+    get:
+      description: Returns list of feeds to caller
+      # used as the method name of the controller
+      operationId: getFeeds
+      parameters:
+      - name: idToken
+        in: header
+        required: true
+        type: string
+      responses:
+        "200":
+          description: A list of feeds.
+          schema:
+            type: array
+            items:
+              # a pointer to a definition
+              $ref: "#/definitions/Feed"
+        # responses may fall through to errors
+        "403":
+          description: Forbidden due to access error
+          schema:
+            $ref: "#/definitions/GeneralResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GeneralResponse"
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: idtoken
+        in: header
+        required: true
+        type: string
+      - name: facebookaccesstoken
+        in: header
+        type: string
+      - name: feed
+        in: body
+        required: true
+        schema:
+          $ref: "#/definitions/Feed"
+      description: Create a feed
+      # used as the method name of the controller
+      operationId: postFeed
+      responses:
+        "200":
+          description: Newly created feed
+          schema:
+            $ref: "#/definitions/Feed"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GeneralResponse"
+  /feed:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: feed
+    get:
+      description: Returns the feed for the supplied id to the caller
+      parameters:
+      - name: idToken
+        in: header
+        required: true
+        type: string
+      - name: id
+        in: query
+        description: Id of the feed to be returned
+        required: true
+        type: string
+      # used as the method name of the controller
+      operationId: getFeedById
+      responses:
+        "200":
+          description: A list of feeds.
+          schema:
+            type: array
+            items:
+              # a pointer to a definition
+              $ref: "#/definitions/Feed"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GeneralResponse"
+    put:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: idToken
+        in: header
+        required: true
+        type: string
+      - name: id
+        in: query
+        required: true
+        type: string
+      - name: feed
+        in: body
+        required: true
+        schema:
+          $ref: "#/definitions/Feed"
+      description: Update an existing feed
+      # used as the method name of the controller
+      operationId: putFeedById
+      responses:
+        "200":
+          description: Updated an existing feed
+          schema:
+            $ref: "#/definitions/PutResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GeneralResponse"
+    delete:
+      description: Deletes the feed for the provided id
+      parameters:
+      - name: idToken
+        in: header
+        required: true
+        type: string
+      - name: id
+        in: query
+        description: Id of the feed to be deleted
+        required: true
+        type: string
+      # used as the method name of the controller
+      operationId: deleteFeedById
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GeneralResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GeneralResponse"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  HelloWorldResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  GeneralResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  PutResponse:
+    required:
+      - recordsAffected
+      - message
+    properties:
+      recordsAffected:
+        type: integer
+      message:
+        type: string
+  Feed:
+    type: object
+    required:
+      - uid
+      - feedName
+      - feedType
+    properties:
+      _id: 
+        type: string
+      uid:
+        type: string
+      feedName:
+        type: string
+        maxLength: 50
+      __V:
+        type: string
+      feedType:
+        type: string
+        default: none
+        enum:
+        - none
+        - facebook
+        - twitter
+      authentication:
+        type: object
+      feedStatus:
+        type: string
+        default: scheduled
+        enum:
+        - scheduled
+        - stopped
+      hashTag:
+        type: string
+        maxLength: 50
