@@ -41,6 +41,8 @@ exports.postFeed = function(req, res) {
             console.log(err);
             res.json(feed);
           });
+        } else {
+          res.json(feed);
         }
       });
     }
