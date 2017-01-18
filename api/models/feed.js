@@ -10,7 +10,7 @@ var FeedSchema   = new mongoose.Schema({
       enum: ['none', 'facebook', 'twitter'],
       default: 'none'
   },
-  authentication: {type: Object, required: true},
+  //authentication: {type: Object, required: true},
   feedStatus: {
       type: String,
       enum: ['scheduled', 'stopped'],
