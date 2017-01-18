@@ -14,7 +14,12 @@ var config = {
 // Connect to the socialPosts MongoDB
 mongoose.connect(process.env.MONGO_DB_CONNECTIONSTRING);
 var admin = require('firebase-admin');
-var serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_KEY_PATH);
+
+console.log(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+
+var serviceAccount =  JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON); // require(process.env.FIREBASE_SERVICE_ACCOUNT_KEY_PATH);
+
+console.log(JSON.stringify(serviceAccount));
 
 app.locals.defaultFirebaseApp = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
