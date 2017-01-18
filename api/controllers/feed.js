@@ -99,6 +99,8 @@ exports.putFeedById = function(req, res) {
       console.log(authentication);
       var feed = req.body;
 
+      console.log('Feed Hashtag: ' + feed.hashTag);
+
       Feed.update(
         { 
           uid: authentication.uid,

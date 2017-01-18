@@ -21,7 +21,8 @@
   },
   "devDependencies": {
     "should": "^7.1.0",
-    "supertest": "^1.0.0"
+    "supertest": "^1.0.0",
+    "yarn": "^0.19.1"
   },
   "scripts": {
     "start": "node app.js",
