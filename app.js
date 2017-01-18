@@ -12,12 +12,10 @@ var config = {
 };
 
 // Connect to the socialPosts MongoDB
-mongoose.connect(process.env.MONGO_DB_CONNECTIONSTRING);
+mongoose.connect(process.env.MONGO_URI);
+
 var admin = require('firebase-admin');
-
-console.log(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
-
-var serviceAccount =  JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON); // require(process.env.FIREBASE_SERVICE_ACCOUNT_KEY_PATH);
+var serviceAccount =  JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
 
 console.log(JSON.stringify(serviceAccount));
 
