@@ -23,22 +23,21 @@ exports.postFeed = function(req, res) {
       // Save the socialPost and check for errors
       feed.save(function(err) {
         if (err) {
-          console.log(err);
+          console.err(err);
           return res.send(err);
         }
 
         if(req.headers.facebookaccesstoken) {
           facebookUtils.getLongLivedAccessToken(req.headers.facebookaccesstoken).then(function(longLivedToken) {
-            console.log(longLivedToken);
             var feedAuth = new FeedAuth();
             feedAuth.feedId = feed._id;
             feedAuth.authentication = JSON.parse(longLivedToken);
             feedAuth.save(function(err){
-              console.log(err);
+              console.error(err);
               res.json(feed);
             });
           }).catch(function(err) {
-            console.log(err);
+            console.error(err);
             res.json(feed);
           });
         } else {
@@ -55,9 +54,7 @@ exports.postFeed = function(req, res) {
 exports.getFeeds = function(req, res) {
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
-        console.log(authentication);
         Feed.find({ uid: authentication.uid }, function(err, feeds) {
-          console.log(feeds);
           if (err)
             return res.send(err);
 
@@ -96,11 +93,7 @@ exports.getFeedById = function(req, res) {
 exports.putFeedById = function(req, res) {
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
-      console.log(authentication);
       var feed = req.body;
-
-      console.log('Feed Hashtag: ' + feed.hashTag);
-
       Feed.update(
         { 
           uid: authentication.uid,
@@ -114,36 +107,35 @@ exports.putFeedById = function(req, res) {
           hashTag: feed.hashTag
         }, 
         function(err, num, raw) {
-          console.log(err);
           if (err) {
             return res.send(err);
           } else {
-
             if(req.headers.facebookaccesstoken) {
               facebookUtils.getLongLivedAccessToken(req.headers.facebookaccesstoken).then(function(longLivedToken) {
-                console.log(longLivedToken);
                 var feedAuth = new FeedAuth();
                 feedAuth.feedId = feed._id;
                 feedAuth.authentication = JSON.parse(longLivedToken);
                 FeedAuth.findOneAndUpdate({feedId: new ObjectId(req.swagger.params.id.value)}, feedAuth, {upsert:true}, function(err){
                   if(err) console.log(err);
-                  var result = { recordsAffected: num.ok, message: num.ok + ' record updated' };
+                  var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
                   res.json(result);
                 });
               }).catch(function(err) {
                 if(err) console.log(err);
-                var result = { recordsAffected: num.ok, message: num.ok + ' record updated' };
+                var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
                 res.json(result);
               });
             } else {
-              var result = { recordsAffected: num.ok, message: num.ok + ' record updated' };
-                res.json(result);
+              //console.log(num);
+              var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
+              res.json(result);
             }
           }
         }
       );
     }
   ).catch(function(err) {
+    console.log(err);
     res.status(403).send(err);
   });
   

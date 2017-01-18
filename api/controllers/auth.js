@@ -7,7 +7,7 @@ module.exports.authenticate = function (idToken) {
   try {
     if(idToken) {
       if(process.env.CI) { // Handle CI issues ...
-        if(idToken == "AUTHORIZEDUSER") {
+        if(idToken !== "UNAUTHORIZEDUSER") {
           deferred.resolve({uid: idToken});
         } else {
           deferred.reject({message: 'Invalid authentication token'});
