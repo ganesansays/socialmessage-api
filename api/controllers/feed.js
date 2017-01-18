@@ -3,6 +3,8 @@ var FeedAuth = require('../models/feedAuth');
 var authController = require('./auth');
 var facebookUtils = require('../helpers/facebookUtils');
 var ObjectId = require('mongoose').Types.ObjectId; 
+var facebookScrapper = require('../modules/facebookScrapper');
+var Feed = require('../models/feed');
 
 // Create endpoint /api/socialPosts for POST
 exports.postFeed = function(req, res) {
@@ -29,7 +31,7 @@ exports.postFeed = function(req, res) {
           facebookUtils.getLongLivedAccessToken(req.headers.facebookaccesstoken).then(function(longLivedToken) {
             console.log(longLivedToken);
             var feedAuth = new FeedAuth();
-            feedAuth.uid = authentication.uid;
+            feedAuth.feedId = feed._id;
             feedAuth.authentication = JSON.parse(longLivedToken);
             feedAuth.save(function(err){
               console.log(err);
@@ -112,9 +114,24 @@ exports.putFeedById = function(req, res) {
           if (err) {
             return res.send(err);
           } else {
-            var result = { recordsAffected: num.ok, message: num.ok + ' record updated' };
-            console.log(JSON.stringify(result));
-            res.json(result);
+
+            if(req.headers.facebookaccesstoken) {
+              facebookUtils.getLongLivedAccessToken(req.headers.facebookaccesstoken).then(function(longLivedToken) {
+                console.log(longLivedToken);
+                var feedAuth = new FeedAuth();
+                feedAuth.feedId = feed._id;
+                feedAuth.authentication = JSON.parse(longLivedToken);
+                FeedAuth.findOneAndUpdate({feedId: new ObjectId(req.swagger.params.id.value)}, feedAuth, {upsert:true}, function(err){
+                  if(err) console.log(err);
+                  var result = { recordsAffected: num.ok, message: num.ok + ' record updated' };
+                  res.json(result);
+                });
+              }).catch(function(err) {
+                if(err) console.log(err);
+                var result = { recordsAffected: num.ok, message: num.ok + ' record updated' };
+                res.json(result);
+              });
+            }
           }
         }
       );
@@ -142,3 +159,59 @@ exports.deleteFeedById = function(req, res) {
     res.status(403).send(err);
   });  
 };
+
+exports.scrapNewPostsFromSource = function(req, res) {
+  console.log('here ... ');
+  authController.authenticate(req.headers.idtoken).then(
+    function(authentication) {
+      console.log('authenticated ... ' + authentication);
+      Feed.find({ uid: authentication.uid, _id: new ObjectId(req.swagger.params.id.value) }, function(err, feeds) {
+        if (err) {
+          console.log(err);
+          return res.send(err);
+        }
+
+        if(feeds.length > 0) {
+          console.log('Feed found ...' + feeds);
+          FeedAuth.find({ feedId: new ObjectId(req.swagger.params.id.value) }, function(err, feedAuths) {
+            if(feedAuths.length > 0) {
+              console.log('FeedAuths found ...' + feedAuths);
+              if(feeds[0].feedType === 'facebook') {
+                facebookScrapper.scrap(
+                  feeds[0],
+                  feedAuths[0]
+                ).then(function(result) {
+                  console.log('Scrapped ...' + JSON.stringify(result));
+                  Feed.update(
+                  {
+                    uid: authentication.uid,
+                    _id: new ObjectId(req.swagger.params.id.value) 
+                  }, 
+                  { 
+                    scrappedSince: result.since
+                  }, 
+                  function(err, num, raw) {
+                    res.json(result);  
+                  });
+                });
+              } else {
+                console.log('Feed type not supported');
+                res.send({message: 'Feed type not supported!'});
+              }
+            } else {
+              console.log('Authorization to scrap this feed is missing!');
+              res.send({message: 'Authorization to scrap this feed is missing!'});
+            }
+          });
+        }
+        else {
+          console.log({message: 'Feed not found!'});
+          res.send({message: 'Feed not found!'});
+        }
+      });
+    }
+  ).catch(function(err) {
+    console.log(err);
+    res.status(403).send(err);
+  });
+}
