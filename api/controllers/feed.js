@@ -133,6 +133,9 @@ exports.putFeedById = function(req, res) {
                 var result = { recordsAffected: num.ok, message: num.ok + ' record updated' };
                 res.json(result);
               });
+            } else {
+              var result = { recordsAffected: num.ok, message: num.ok + ' record updated' };
+                res.json(result);
             }
           }
         }
