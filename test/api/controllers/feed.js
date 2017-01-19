@@ -21,6 +21,7 @@ describe('controllers', function() {
           done();
         });
       });
+
       it('should return 403 - Invalid authentication token', function(done) {
         request(server)
           .get('/feeds')
@@ -33,6 +34,7 @@ describe('controllers', function() {
             done();
           });
       });
+
       it('should not return any feeds for this user', function(done) {
         request(server)
           .get('/feeds')
@@ -47,6 +49,7 @@ describe('controllers', function() {
             done();
           });
       });
+
       afterEach(function(done){
         Feed.collection.drop();
         done();
@@ -111,8 +114,8 @@ describe('controllers', function() {
         mongooseFeed.save(function(err) {
           done();
         });
-        
       });
+
       it('should return 403 - Invalid authentication token', function(done) {
         request(server)
           .put('/feed/' + mongooseFeed._id)
@@ -137,7 +140,7 @@ describe('controllers', function() {
           .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            res.body.recordsAffected.should.eql(0);
+            res.body.recordsAffected.should.eql(1);
             
             done();
           });
