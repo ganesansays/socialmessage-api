@@ -140,7 +140,7 @@ describe('controllers', function() {
           .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            res.body.recordsAffected.should.eql(1);
+            res.body.recordsAffected.should.eql(0);
             
             done();
           });
