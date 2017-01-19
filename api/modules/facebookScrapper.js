@@ -103,7 +103,7 @@ var getData = function(uid, feedId, url) {
           deferred.resolve({count: content.data.length, url: next});
         });
       } else if(content && content.error) {
-        console.log('Resolve Error: ' + content.error);
+        console.error('Resolve Error: ' + content.error);
         deferred.resolve({count: 0, error: content.error.message});
       }
       else {
