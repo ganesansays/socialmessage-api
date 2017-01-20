@@ -70,8 +70,8 @@ exports.getFeeds = function(req, res) {
 exports.getFeedById = function(req, res) {
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
-      console.log(authentication + ' ' + JSON.stringify(req.swagger.params.id));
-      Feed.find({ uid: authentication.uid, _id: new ObjectId(req.swagger.params.id.value) }, function(err, feed) {
+      console.log(JSON.stringify(authentication) + ' ' + JSON.stringify(req.swagger.params.id));
+      Feed.find({}, function(err, feed) {
         console.log(feed);
         if (err)
           return res.send(err);
@@ -146,12 +146,17 @@ exports.deleteFeedById = function(req, res) {
   // Use the socialPost model to find a specific socialPost and remove it
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
-      Feed.remove({ uid: authentication.uid, _id: new ObjectId(req.swagger.params.id.value) }, function(err) {
-        console.log(num);
-        if (err)
-          return res.send(err);
-
-        res.json({message: 'Feed removed!'});
+      Feed.remove({ uid: authentication.uid, _id: new ObjectId(req.swagger.params.id.value) }, function(err, num, raw) {
+        if (err) {
+          res.json(err); 
+        }
+          
+        
+        if(num.result.n > 0) {
+          res.json({message: 'Record deleted sucessfully!'});
+        } else {
+          res.json({message: 'Record not found!'});
+        }
       });
     }
   ).catch(function(err) {

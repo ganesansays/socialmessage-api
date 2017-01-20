@@ -14,7 +14,7 @@ var config = {
 // Connect to the socialPosts MongoDB
 mongoose.connect(process.env.MONGODB_URI);
 
-if(!process.env.CI) {
+// if(!process.env.CI) {
   var admin = require('firebase-admin');
   var serviceAccount =  JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
 
@@ -28,7 +28,7 @@ if(!process.env.CI) {
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID
   });
-}
+// }
 
 
 SwaggerExpress.create(config, function(err, swaggerExpress) {

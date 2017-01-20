@@ -107,8 +107,8 @@ exports.putSocialPostById = function(req, res) {
             console.log(err);
             return res.send(err);
           } else {
-            var result = { recordsAffected: num.ok, message: num.ok + ' record updated' };
-            console.log(JSON.stringify(result));
+            var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
+            console.log(JSON.stringify(num));
             res.json(result);
           }
         }
@@ -125,18 +125,24 @@ exports.deleteSocialPostById = function(req, res) {
     function(authentication) {
         console.log(authentication);
         console.log(req.swagger.params.id);
-        SocialPost.remove({ uid: authentication.uid, _id: new ObjectId(req.swagger.params.id.value) }, function(err) {
-          if (err) {
-            console.log(err);
-            return res.send(err);
-          }
+        SocialPost.remove(
+          { uid: authentication.uid, _id: new ObjectId(req.swagger.params.id.value) }, 
+          function(err, num, raw) {
+            if (err) {
+              console.log(err);
+              return res.send(err);
+            }
 
-          res.json({ message: 'Social Post removed!' });
-        });
+            if(num.result.n > 0) {
+              res.json({message: 'Record deleted sucessfully!'});
+            } else {
+              res.json({message: 'Record not found!'});
+            }
+          }
+        );
     }
   ).catch(function(err) {
     console.log(err);
     res.status(403).send(err);
   });
-  // Use the socialPost model to find a specific socialPost and remove it 
 };

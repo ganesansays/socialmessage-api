@@ -4,7 +4,7 @@ var q = require('q');
 exports.getLongLivedAccessToken = function(facebookAccessToken) {
   var deferred = q.defer();
 
-  var url = 'https://graph.facebook.com/' + process.env.FACEBOOK_API_VERSION + 
+  var url = '/' + process.env.FACEBOOK_API_VERSION + 
             '/oauth/access_token' +           
             '?grant_type=fb_exchange_token' +           
             '&client_id=' + process.env.FACEBOOK_APP_ID + 

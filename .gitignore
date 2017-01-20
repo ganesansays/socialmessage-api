@@ -35,3 +35,9 @@ config/runtime.yaml
 
 #Environment Variables
 .env
+
+#coverage and test reports
+.coverdata
+.coverrun
+debug
+reports

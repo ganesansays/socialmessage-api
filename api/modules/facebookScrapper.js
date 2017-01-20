@@ -7,6 +7,7 @@ var q = require('q');
 //  1) scrap - Function to scrap content from facebook page/feed
 //     Input:
 //       1. Feed to be scrapped
+//       2. FeedAuth - Authorization for the feed
 //     Output:
 //       Returns a promise
 //     Resolve: JSON({since:XXX, error: xxx})
