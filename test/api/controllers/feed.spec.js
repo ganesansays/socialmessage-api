@@ -8,19 +8,28 @@ var nock = require('nock');
 var sinon = require('sinon');
 var auth = require('../../../api/controllers/auth');
 var q = require('q');
+var admin = require("firebase-admin");
 
 describe('controllers', function() {
   beforeEach(function(done){
-    sinon.stub(auth, 'authenticate', function(idToken) {
-      var deferred = q.defer();
-      if(idToken === 'UNAUTHORIZEDUSER') {
-        deferred.reject({message: 'Invalid authentication token'});
-      } else {
-        deferred.resolve({uid: idToken});
+    sinon.stub(admin, 'app', function(){
+      return {
+        auth: function() {
+          return {
+            verifyIdToken: function(idToken) {
+              var deferred = q.defer();
+              if(idToken === 'UNAUTHORIZEDUSER') {
+                deferred.reject({message: 'Invalid authentication token'});
+              } else {
+                deferred.resolve({sub: idToken});
+              }
+              return deferred.promise;
+            }
+          }
+        }
       }
-      return deferred.promise;
     });
-    done();
+   done();
   });
   describe('feed', function() {
     describe('GET /feeds', function() {
@@ -119,7 +128,6 @@ describe('controllers', function() {
       Feed.collection.drop();
 
       var newFeed = new Feed({
-        //'uid': 'ANOTHERAUTHORIZEDUSER',
         'feedName': 'Feed Name',
         'feedType': 'none',
         'authentication': {}
@@ -133,7 +141,7 @@ describe('controllers', function() {
             '&client_id=' + process.env.FACEBOOK_APP_ID + 
             '&client_secret=' + process.env.FACEBOOK_APP_SECRET +
             '&fb_exchange_token=dummyToken')
-          .reply(200, {accesstoken: 'dummyToken'});
+          .reply(200, {access_token: 'dummyToken'});
         done();
       })
 
@@ -179,8 +187,6 @@ describe('controllers', function() {
 
       var newFeedId = '';
 
-      // var mongooseFeed = new Feed(newFeed);
-
       beforeEach(function(done){
         var newFeed = new Feed({
           'uid': 'AUTHORIZEDUSER',
@@ -190,9 +196,7 @@ describe('controllers', function() {
         });
         newFeed.save(function(err) {
           newFeedId = newFeed._id;
-          console.log('Feed Id: ' + newFeedId);
           Feed.find({}, function(err, feeds) {
-            console.log(feeds);
             done();
           })
         });
@@ -221,7 +225,6 @@ describe('controllers', function() {
           .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            console.log(res.body);
             var feeds = res.body;
             feeds.length.should.eql(1);
             new ObjectId(feeds[0]._id).should.eql(newFeedId);
@@ -253,7 +256,7 @@ describe('controllers', function() {
             '&client_id=' + process.env.FACEBOOK_APP_ID + 
             '&client_secret=' + process.env.FACEBOOK_APP_SECRET +
             '&fb_exchange_token=dummyToken')
-          .reply(200, {accesstoken: 'dummyToken'});
+          .reply(200, {access_token: 'dummyToken'});
 
         mongooseFeed.save(function(err) {
           done();
@@ -316,7 +319,7 @@ describe('controllers', function() {
             '&client_id=' + process.env.FACEBOOK_APP_ID + 
             '&client_secret=' + process.env.FACEBOOK_APP_SECRET +
             '&fb_exchange_token=dummyToken')
-          .reply(200, {accesstoken: 'dummyToken'});
+          .reply(200, {access_token: 'dummyToken'});
 
         mongooseFeed.save(function(err) {
           done();
@@ -424,7 +427,6 @@ describe('controllers', function() {
           .end(function(err, res) {
             should.not.exist(err);
             res.body.should.eql({message: 'Record deleted sucessfully!'});
-            console.log(res.body);
             done();
           });
       });
@@ -432,12 +434,18 @@ describe('controllers', function() {
     describe('POST /feed/{id}/scrapNewPostFromSource', function() {
       Feed.collection.drop();
 
-      var newFeed = new Feed({
-        //'uid': 'ANOTHERAUTHORIZEDUSER',
-        'feedName': 'Feed Name',
-        'feedType': 'none',
+      var newFeed = {
+        'uid': 'AUTHORIZEDUSER',
+        'feedName': 'testFeed',
+        'feedType': 'facebook',
         'authentication': {}
-      });
+      };
+
+      var message = {
+        message: 'This is a test message'
+      };
+
+      var mongooseFeed = new Feed(newFeed);
 
       beforeEach(function(done) {
         nock('https://graph.facebook.com')
@@ -447,17 +455,38 @@ describe('controllers', function() {
             '&client_id=' + process.env.FACEBOOK_APP_ID + 
             '&client_secret=' + process.env.FACEBOOK_APP_SECRET +
             '&fb_exchange_token=dummyToken')
-          .reply(200, {accesstoken: 'dummyToken'});
-        done();
+          .reply(200, {access_token: 'dummyToken'});
+
+        nock('https://graph.facebook.com')
+          .get('/' + process.env.FACEBOOK_API_VERSION + 
+            '/' + newFeed.feedName + '/feed/?fields=' + process.env.FACEBOOK_API_FEED_FIELDS + 
+            '&limit=' + process.env.FACEBOOK_API_FEED_LIMIT + 
+            '&access_token=dummyToken' + 
+            '&since=0')
+          .reply(200, {data: [
+            {
+              id: 'facebookPostId', 
+              from: {name: 'facebookPostFrom'}, 
+              message: 'facebook post message',
+              type: 'photo',
+              source: 'https://source.of.the/image.jpg',
+              created_time: new Date(),
+            }
+          ]});
+
+        mongooseFeed.save(function(err) {
+          console.log(mongooseFeed._id);
+          done();
+        })
       })
 
       it('should return 403 - Invalid authentication token', function(done) {
         request(server)
-          .post('/feeds')
+          .post('/feed/' + mongooseFeed._id + '/scrapNewPostsFromSource')
           .set('idtoken',  'UNAUTHORIZEDUSER')
           .set('facebookaccesstoken', 'dummyToken')
           .set('Accept', 'application/json')
-          .send(newFeed)
+          .send(message)
           .expect('Content-Type', /json/)
           .expect(403)
           .end(function(err, res) {
@@ -467,7 +496,7 @@ describe('controllers', function() {
           });
       });
 
-      it('should create a feed for this user', function(done) {
+      it('should scrap new posts from facebook feed', function(done) {
         request(server)
           .post('/feeds')
           .set('idtoken',  'AUTHORIZEDUSER')
@@ -478,10 +507,21 @@ describe('controllers', function() {
           .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            res.body._id.should.not.eql(undefined);
-            res.body.uid.should.eql('AUTHORIZEDUSER');
-            done();
+            request(server)
+              .post('/feed/' + res.body._id + '/scrapNewPostsFromSource')
+              .set('idtoken',  'AUTHORIZEDUSER')
+              .set('facebookaccesstoken', 'dummyToken')
+              .set('Accept', 'application/json')
+              .send(message)
+              .expect('Content-Type', /json/)
+              .expect(200)
+              .end(function(err, res) {
+                should.not.exist(err);
+                res.body.message.should.eql('1 post scrapped!');    
+                done();
+              });
           });
+        
       });
 
       afterEach(function(done){
@@ -491,7 +531,8 @@ describe('controllers', function() {
     });
   });
   afterEach(function(done) {
-    auth.authenticate.restore();
+    // auth.authenticate.restore();
+    admin.app.restore();
     done();
   });
 });

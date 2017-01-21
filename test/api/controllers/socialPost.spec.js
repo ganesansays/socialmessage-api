@@ -229,10 +229,9 @@ describe('controllers', function() {
           .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            console.log(res.body);
-            var feeds = res.body;
-            feeds.length.should.eql(1);
-            new ObjectId(feeds[0]._id).should.eql(newSocialPost._id);
+            var socialPosts = res.body;
+            socialPosts.length.should.eql(1);
+            new ObjectId(socialPosts[0]._id).should.eql(newSocialPost._id);
             done();
           });
       });
@@ -276,7 +275,7 @@ describe('controllers', function() {
       });
 
       it('should return 403 - Invalid authentication token', function(done) {
-        console.log(newFeed._id);
+        // console.log(newFeed._id);
         request(server)
           .post('/feed/' + newFeed._id + '/socialPosts')
           .set('idtoken',  'UNAUTHORIZEDUSER')
@@ -285,14 +284,15 @@ describe('controllers', function() {
           .expect('Content-Type', /json/)
           //.expect(403)
           .end(function(err, res) {
-            console.log(res);
+            console.log(res.body);
+            console.log(res.status);
             should.not.exist(err);
             res.body.should.eql({ message: 'Invalid authentication token' });
             done();
           });
       });
       it('should not updated any feed', function(done) {
-        console.log(newFeed._id);
+        // console.log(newFeed._id);
         request(server)
           .post('/feed/' + newFeed._id + '/socialPosts')
           .set('idtoken',  'AUTHORIZEDUSER')
@@ -302,7 +302,7 @@ describe('controllers', function() {
           //.expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            console.log(res);
+            // console.log(res);
             //res.body.recordsAffected.should.eql(0);
             done();
           });
@@ -373,7 +373,7 @@ describe('controllers', function() {
           .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            console.log(res.body);
+            // console.log(res.body);
             //res.body.recordsAffected.should.eql(0);
             done();
           });
@@ -562,7 +562,7 @@ describe('controllers', function() {
           .end(function(err, res) {
             should.not.exist(err);
             res.body.should.eql({message: 'Record deleted sucessfully!'});
-            console.log(res.body);
+            // console.log(res.body);
             done();
           });
       });

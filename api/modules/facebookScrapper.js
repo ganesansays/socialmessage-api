@@ -100,8 +100,12 @@ var getData = function(uid, feedId, url) {
       if(content && content.data) {
         createPosts(uid, feedId, content.data, function(result) {
           var next = '';
-          if(content.paging && content.paging.next) next = content.paging.next;
-          deferred.resolve({count: content.data.length, url: next});
+          if(content.paging && content.paging.next) {
+            next = content.paging.next;
+            deferred.resolve({count: content.data.length, url: next});
+          } else {
+            deferred.resolve({count: content.data.length});
+          }
         });
       } else if(content && content.error) {
         console.error('Resolve Error: ' + content.error);
@@ -140,10 +144,10 @@ var createPosts = function(uid, feedId, data, cb) {
 
       if(data[i].type === 'video') {
         socialPost.postMediaUrl = data[i].source;
-        socialPost.postMediaType = 'VIDEO';
+        socialPost.postMediaType = 'video';
       } else if(data[i].picture || data[i].type === 'photo') {
         socialPost.postMediaUrl = data[i].picture; 
-        socialPost.postMediaType = 'IMAGE';
+        socialPost.postMediaType = 'image';
       } 
 
       socialPost.postedOn = data[i].created_time; 

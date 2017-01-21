@@ -18,7 +18,7 @@ mongoose.connect(process.env.MONGODB_URI);
   var admin = require('firebase-admin');
   var serviceAccount =  JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
 
-  console.log(JSON.stringify(serviceAccount));
+  //console.log(JSON.stringify(serviceAccount));
 
   app.locals.defaultFirebaseApp = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
