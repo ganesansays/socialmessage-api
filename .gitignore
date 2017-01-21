@@ -41,3 +41,8 @@ config/runtime.yaml
 .coverrun
 debug
 reports
+
+#stub
+stub/api
+stub/dist
+stub/
