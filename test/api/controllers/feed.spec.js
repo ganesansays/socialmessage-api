@@ -531,7 +531,6 @@ describe('controllers', function() {
     });
   });
   afterEach(function(done) {
-    // auth.authenticate.restore();
     admin.app.restore();
     done();
   });

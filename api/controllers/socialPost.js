@@ -108,7 +108,7 @@ exports.putSocialPostById = function(req, res) {
             return res.send(err);
           } else {
             var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
-            console.log(JSON.stringify(num));
+            console.log(result);
             res.json(result);
           }
         }

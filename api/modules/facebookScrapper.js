@@ -59,12 +59,12 @@ function getAllData(uid, feedId, url, totalCount, deferred) {
   var promise = getData(uid, feedId, url);
 
   promise.then(function(result) {
-      if(result.count > 0) {
+      if(result.count > 0 && result.url) {
         getAllData(uid, feedId, result.url, totalCount+result.count, deferred);
       } else {
         var response = {}
         
-        response.message = totalCount + ' post scrapped!';
+        response.message = totalCount + result.count + ' post scrapped!';
 
         if(result.error) {
           response.error = result.error;

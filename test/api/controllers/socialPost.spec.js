@@ -1,12 +1,12 @@
 var should = require('should');
 var request = require('supertest');
-var server = require('../../../app');
 var mongoose = require("mongoose");
+var ObjectId = require('mongoose').Types.ObjectId;
+var server = require('../../../app');
 var SocialPost = require("../../../api/models/socialPost");
 var Feed = require("../../../api/models/feed");
-var ObjectId = require('mongoose').Types.ObjectId;
-var sinon = require('sinon');
 var auth = require('../../../api/controllers/auth');
+var sinon = require('sinon');
 var q = require('q');
 
 describe('controllers', function() {
@@ -232,6 +232,18 @@ describe('controllers', function() {
             var socialPosts = res.body;
             socialPosts.length.should.eql(1);
             new ObjectId(socialPosts[0]._id).should.eql(newSocialPost._id);
+            res.body[0].uid.should.eql(newSocialPost.uid);
+            res.body[0].uid.should.eql(newSocialPost.uid);
+            res.body[0].profileId.should.eql("test profile");
+            res.body[0].profileName.should.eql("test profile name");
+            res.body[0].profileImageUrl.should.eql("http://this.is.a.test/image.jpg");
+            res.body[0].postText.should.eql("test text");
+            res.body[0].postMediaUrl.should.eql("http://this.is.a.test.media/image.jpg");
+            res.body[0].postMediaType.should.eql('image');
+            res.body[0].rawPost.should.eql({dummy: 'dummy'});
+            res.body[0].tags.should.eql([]);
+            res.body[0].metaData.should.eql({dummy: 'dummy'});
+            res.body[0].approvalStatus.should.eql('new');
             done();
           });
       });
@@ -291,19 +303,19 @@ describe('controllers', function() {
             done();
           });
       });
-      it('should not updated any feed', function(done) {
-        // console.log(newFeed._id);
+      it('should create a new social post', function(done) {
         request(server)
           .post('/feed/' + newFeed._id + '/socialPosts')
           .set('idtoken',  'AUTHORIZEDUSER')
           .set('Accept', 'application/json')
           .send(newSocialPost)          
           .expect('Content-Type', /json/)
-          //.expect(200)
+          .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            // console.log(res);
-            //res.body.recordsAffected.should.eql(0);
+            res.body.length.should.eql(1);
+            res.body[0]._id.should.not.eql(undefined);
+            res.body[0].uid.should.eql('AUTHORIZEDUSER');
             done();
           });
       });
@@ -373,8 +385,8 @@ describe('controllers', function() {
           .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            // console.log(res.body);
-            //res.body.recordsAffected.should.eql(0);
+            console.log(res.body);
+            res.body.recordsAffected.should.eql(0);
             done();
           });
       });
@@ -562,16 +574,9 @@ describe('controllers', function() {
           .end(function(err, res) {
             should.not.exist(err);
             res.body.should.eql({message: 'Record deleted sucessfully!'});
-            // console.log(res.body);
             done();
           });
       });
-
-      // afterEach(function(done){
-      //   Feed.collection.drop();
-      //   SocialPost.collection.drop();
-      //   done();
-      // });
     });
   });
   afterEach(function(done) {
