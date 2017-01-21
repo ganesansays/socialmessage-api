@@ -13,6 +13,14 @@ gulp.task('test', function () {
             .pipe(mocha({ reporter: 'spec' }))
             .pipe(cover.gather())
             .pipe(cover.format())
+            .pipe(cover.enforce(
+              {
+                statements: 84,
+                blocks: 70,
+                lines: 84,
+                uncovered: 0
+              }
+            ))
             .pipe(gulp.dest('reports')) 
             .on('error', util.log)
             .once('end', function () {
