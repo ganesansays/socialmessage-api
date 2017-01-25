@@ -390,6 +390,9 @@ definitions:
       feedName:
         type: string
         maxLength: 50
+      feedHandle:
+        type: string
+        maxLength: 50
       __V:
         type: string
       feedType:

@@ -16,6 +16,7 @@ exports.postFeed = function(req, res) {
       // Set the socialPost properties that came from the POST data
       feed.uid = authentication.uid; //Multi Tenant
       feed.feedName = feedReq.feedName;
+      feed.feedHandle = feedReq.feedHandle;
       feed.feedType = feedReq.feedType;
       feed.authentication = feedReq.authentication;
       feed.hashTag = feedReq.hashTag;
@@ -23,7 +24,7 @@ exports.postFeed = function(req, res) {
       // Save the socialPost and check for errors
       feed.save(function(err) {
         if (err) {
-          console.err(err);
+          console.error(err);
           return res.send(err);
         }
 
@@ -94,18 +95,29 @@ exports.putFeedById = function(req, res) {
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
       var feed = req.body;
+
+      var feedToUpdate = {
+        feedName: feed.feedName,
+        feedHandle: feed.feedHandle,
+        feedType: feed.feedType,
+        feedStatus: feed.feedStatus,
+        feedHandle: feed.feedHandle
+      };
+
+      var unset = {};
+
+      if(feed.hashTag) feedToUpdate.hashTag = feed.hashTag;
+      else unset.hashTag = 1;
+
       Feed.update(
         { 
           uid: authentication.uid,
           _id: new ObjectId(req.swagger.params.id.value) 
         }, 
-        { 
-          feedName: feed.feedName,
-          feedType: feed.feedType,
-          authentication: feed.authentication,
-          feedStatus: feed.feedStatus,
-          hashTag: feed.hashTag
-        }, 
+        feedToUpdate, 
+        {
+          $unset: unset
+        },
         function(err, num, raw) {
           if (err) {
             return res.send(err);

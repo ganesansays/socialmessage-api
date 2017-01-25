@@ -19,7 +19,7 @@ exports.scrap = function(feed, feedAuth) {
   var uid = feed.uid;
   var feedId = feed._id; 
   var facebookAccessToken = feedAuth.authentication.access_token; 
-  var pageId = feed.feedName;
+  var pageId = feed.feedHandle;
   var since = feed.scrappedSince;
   
   var deferred = q.defer();
@@ -116,6 +116,8 @@ var getData = function(uid, feedId, url) {
       }
     });
   }
+
+  console.log(options);
 
   var fbReq = https.request(options, callback);
 

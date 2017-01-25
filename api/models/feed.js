@@ -4,7 +4,18 @@ var mongoose = require('mongoose');
 // Define Social Post schema
 var FeedSchema   = new mongoose.Schema({
   uid: {type: String, required: true}, //Multi Tenant Firebase UID 
-  feedName: {type: String, required: true}, 
+  feedName: {type: String, required: true},
+  feedHandle: {
+      type: String, 
+      required: true,
+      validate: {
+          validator: function(v) {
+              var re = /[^\s-]/;
+              return ( v === null || v.trim().length < 1 || re.test(v));
+          }, 
+          message: "Feed handle cannot have space"
+      }
+    }, 
   feedType: {
       type: String,
       enum: ['none', 'facebook', 'twitter'],
@@ -16,7 +27,7 @@ var FeedSchema   = new mongoose.Schema({
       enum: ['scheduled', 'stopped'],
       default: 'scheduled'
   },
-  hashTag: String
+  hashTag: { type: String }
 });
 
 // Export the Mongoose model
