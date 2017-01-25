@@ -27,7 +27,8 @@ var FeedSchema   = new mongoose.Schema({
       enum: ['scheduled', 'stopped'],
       default: 'scheduled'
   },
-  hashTag: { type: String }
+  hashTag: { type: String },
+  scrappedSince: {type: Object}
 });
 
 // Export the Mongoose model

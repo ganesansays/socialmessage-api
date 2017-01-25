@@ -198,6 +198,8 @@ exports.scrapNewPostsFromSource = function(req, res) {
                   feedAuths[0]
                 ).then(function(result) {
                   console.log('Scrapped ...' + JSON.stringify(result));
+                  console.log(authentication.uid);
+                  console.log(req.swagger.params.id.value);
                   Feed.update(
                   {
                     uid: authentication.uid,
@@ -207,6 +209,7 @@ exports.scrapNewPostsFromSource = function(req, res) {
                     scrappedSince: result.since
                   }, 
                   function(err, num, raw) {
+                    console.log(num);
                     res.json(result);  
                   });
                 });
