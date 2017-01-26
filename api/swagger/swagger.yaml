@@ -22,6 +22,8 @@ paths:
     # binds a127 app logic to a route
     x-swagger-router-controller: feed
     get:
+      tags:
+      - feed
       description: Returns list of feeds to caller
       # used as the method name of the controller
       operationId: list
@@ -49,6 +51,8 @@ paths:
           schema:
             $ref: "#/definitions/GeneralResponse"
     post:
+      tags:
+      - feed
       consumes:
       - application/json
       produces:
@@ -83,6 +87,8 @@ paths:
     # binds a127 app logic to a route
     x-swagger-router-controller: feed
     get:
+      tags:
+      - feed
       description: Returns the feed for the supplied id to the caller
       parameters:
       - name: idToken
@@ -110,6 +116,8 @@ paths:
           schema:
             $ref: "#/definitions/GeneralResponse"
     put:
+      tags:
+      - feed
       consumes:
       - application/json
       produces:
@@ -145,6 +153,8 @@ paths:
           schema:
             $ref: "#/definitions/GeneralResponse"
     delete:
+      tags:
+      - feed
       description: Deletes the feed for the provided id
       parameters:
       - name: idToken
