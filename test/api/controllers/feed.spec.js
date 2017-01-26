@@ -510,27 +510,40 @@ describe('controllers', function() {
         request(server)
           .post('/feeds')
           .set('idtoken',  'AUTHORIZEDUSER')
-          .set('facebookaccesstoken', 'dummyToken')
+          // .set('facebookaccesstoken', 'dummyToken')
           .set('Accept', 'application/json')
           .send(newFeed)
           .expect('Content-Type', /json/)
           .expect(200)
           .end(function(err, res) {
-            //should.not.exist(err);
-            console.log(err);
+            var feed_id = res.body._id;
             request(server)
-              .post('/feed/' + res.body._id + '/scrapNewPostsFromSource')
+              .post('/feed/' + feed_id + '/authorizeToScrap')
               .set('idtoken',  'AUTHORIZEDUSER')
-              .set('facebookaccesstoken', 'dummyToken')
+              .set('access_token', 'dummyToken')
               .set('Accept', 'application/json')
               .send(message)
               .expect('Content-Type', /json/)
               .expect(200)
               .end(function(err, res) {
                 should.not.exist(err);
-                res.body.message.should.eql('1 post scrapped!');    
-                done();
+                console.log(err);
+                request(server)
+                  .post('/feed/' + feed_id + '/scrapNewPostsFromSource')
+                  .set('idtoken',  'AUTHORIZEDUSER')
+                  .set('facebookaccesstoken', 'dummyToken')
+                  .set('Accept', 'application/json')
+                  .send(message)
+                  .expect('Content-Type', /json/)
+                  .expect(200)
+                  .end(function(err, res) {
+                    should.not.exist(err);
+                    res.body.message.should.eql('1 post scrapped!');    
+                    done();
+                  });
               });
+            //should.not.exist(err);
+            
           });
         
       });

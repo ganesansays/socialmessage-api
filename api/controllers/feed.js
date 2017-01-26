@@ -28,22 +28,24 @@ exports.create = function(req, res) {
           return res.send(err);
         }
 
-        if(req.headers.facebookaccesstoken) {
-          facebookUtils.getLongLivedAccessToken(req.headers.facebookaccesstoken).then(function(longLivedToken) {
-            var feedAuth = new FeedAuth();
-            feedAuth.feedId = feed._id;
-            feedAuth.authentication = JSON.parse(longLivedToken);
-            feedAuth.save(function(err){
-              console.error(err);
-              res.json(feed);
-            });
-          }).catch(function(err) {
-            console.error(err);
-            res.json(feed);
-          });
-        } else {
-          res.json(feed);
-        }
+        res.json(feed);
+
+        // if(req.headers.facebookaccesstoken) {
+        //   facebookUtils.getLongLivedAccessToken(req.headers.facebookaccesstoken).then(function(longLivedToken) {
+        //     var feedAuth = new FeedAuth();
+        //     feedAuth.feedId = feed._id;
+        //     feedAuth.authentication = JSON.parse(longLivedToken);
+        //     feedAuth.save(function(err){
+        //       console.error(err);
+        //       res.json(feed);
+        //     });
+        //   }).catch(function(err) {
+        //     console.error(err);
+        //     res.json(feed);
+        //   });
+        // } else {
+        //   res.json(feed);
+        // }
       });
     }
   ).catch(function(err) {
@@ -122,26 +124,28 @@ exports.updateById = function(req, res) {
           if (err) {
             return res.send(err);
           } else {
-            if(req.headers.facebookaccesstoken) {
-              facebookUtils.getLongLivedAccessToken(req.headers.facebookaccesstoken).then(function(longLivedToken) {
-                var feedAuth = new FeedAuth();
-                feedAuth.feedId = feed._id;
-                feedAuth.authentication = JSON.parse(longLivedToken);
-                FeedAuth.findOneAndUpdate({feedId: new ObjectId(req.swagger.params.id.value)}, feedAuth, {upsert:true}, function(err){
-                  if(err) console.log(err);
-                  var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
-                  res.json(result);
-                });
-              }).catch(function(err) {
-                if(err) console.log(err);
-                var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
-                res.json(result);
-              });
-            } else {
-              //console.log(num);
-              var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
-              res.json(result);
-            }
+            // if(req.headers.facebookaccesstoken) {
+            //   facebookUtils.getLongLivedAccessToken(req.headers.facebookaccesstoken).then(function(longLivedToken) {
+            //     var feedAuth = new FeedAuth();
+            //     feedAuth.feedId = feed._id;
+            //     feedAuth.authentication = JSON.parse(longLivedToken);
+            //     FeedAuth.findOneAndUpdate({feedId: new ObjectId(req.swagger.params.id.value)}, feedAuth, {upsert:true}, function(err){
+            //       if(err) console.log(err);
+            //       var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
+            //       res.json(result);
+            //     });
+            //   }).catch(function(err) {
+            //     if(err) console.log(err);
+            //     var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
+            //     res.json(result);
+            //   });
+            // } else {
+            //   //console.log(num);
+            //   var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
+            //   res.json(result);
+            // }
+            var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
+            res.send(result);
           }
         }
       );
@@ -233,4 +237,35 @@ exports.scrapNewPostsFromSource = function(req, res) {
     console.log(err);
     res.status(403).send(err);
   });
+}
+
+exports.authorizeToScrap = function(req, res) {
+  authController.authenticate(req.headers.idtoken).then(
+    function(authentication) {
+      var feedId = new ObjectId(req.swagger.params.id.value)
+      if(req.headers.access_token) {
+        facebookUtils.getLongLivedAccessToken(req.headers.access_token).then(function(longLivedToken) {
+          var feedAuth = new FeedAuth();
+          feedAuth.feedId = feedId;
+          feedAuth.authentication = JSON.parse(longLivedToken);
+          FeedAuth.findOneAndUpdate(
+            {
+              uid: authentication.uid, 
+              feedId: new ObjectId(req.swagger.params.id.value)
+            }, feedAuth, 
+            { upsert: true }, 
+            function(err, num, raw) {
+            if(err) console.log(err);
+              // var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
+              res.send({message: 'Scrapping is authorized on this feed'});
+              // res.json(result);
+            }
+          );
+        }).catch(function(err) {
+          return res.send(err);
+        });
+      } else {
+        res.send({message: 'Access token required to authenticate scrapping'});
+      }
+    });  
 }

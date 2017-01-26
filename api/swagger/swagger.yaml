@@ -178,6 +178,72 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/GeneralResponse"
+  /feed/{id}/scrapNewPostsFromSource:
+    x-swagger-router-controller: feed
+    post:
+        consumes:
+        - application/json
+        produces:
+        - application/json
+        parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: idtoken
+          in: header
+          required: true
+          type: string
+        - name: contentText
+          in: body
+          schema:
+            $ref: "#/definitions/GeneralResponse"
+        description: Create a feed
+        # used as the method name of the controller
+        operationId: scrapNewPostsFromSource
+        responses:
+          "200":
+            description: Newly created feed
+            schema:
+              $ref: "#/definitions/GeneralResponse"
+          # responses may fall through to errors
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/GeneralResponse"
+  /feed/{id}/authorizeToScrap:
+    x-swagger-router-controller: feed
+    post:
+        consumes:
+        - application/json
+        produces:
+        - application/json
+        parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: idtoken
+          in: header
+          required: true
+          type: string
+        - name: access_token
+          in: header
+          required: true
+          type: string
+        description: Create a feed
+        # used as the method name of the controller
+        operationId: authorizeToScrap
+        responses:
+          "200":
+            description: Newly created feed
+            schema:
+              $ref: "#/definitions/GeneralResponse"
+          # responses may fall through to errors
+          default:
+            description: Error
+            schema:
+              $ref: "#/definitions/GeneralResponse"
   /feed/{id}/socialPosts:
     # binds a127 app logic to a route
     x-swagger-router-controller: socialPost
@@ -335,39 +401,6 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/GeneralResponse"
-  /feed/{id}/scrapNewPostsFromSource:
-    x-swagger-router-controller: feed
-    post:
-        consumes:
-        - application/json
-        produces:
-        - application/json
-        parameters:
-        - name: id
-          in: path
-          required: true
-          type: string
-        - name: idtoken
-          in: header
-          required: true
-          type: string
-        - name: contentText
-          in: body
-          schema:
-            $ref: "#/definitions/GeneralResponse"
-        description: Create a feed
-        # used as the method name of the controller
-        operationId: scrapNewPostsFromSource
-        responses:
-          "200":
-            description: Newly created feed
-            schema:
-              $ref: "#/definitions/GeneralResponse"
-          # responses may fall through to errors
-          default:
-            description: Error
-            schema:
-              $ref: "#/definitions/GeneralResponse"
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
