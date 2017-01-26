@@ -214,6 +214,8 @@ paths:
   /feed/{id}/authorizeToScrap:
     x-swagger-router-controller: feed
     post:
+        tags:
+        - feed
         consumes:
         - application/json
         produces:
