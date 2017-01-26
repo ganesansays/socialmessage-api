@@ -256,13 +256,14 @@ exports.authorizeToScrap = function(req, res) {
             }, feedAuth, 
             { upsert: true }, 
             function(err, num, raw) {
-            if(err) console.log(err);
+              if(err) console.log(err);
               // var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
               res.send({message: 'Scrapping is authorized on this feed'});
               // res.json(result);
             }
           );
         }).catch(function(err) {
+          console.log(err);
           return res.send(err);
         });
       } else {

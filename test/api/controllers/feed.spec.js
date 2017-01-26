@@ -510,12 +510,12 @@ describe('controllers', function() {
         request(server)
           .post('/feeds')
           .set('idtoken',  'AUTHORIZEDUSER')
-          // .set('facebookaccesstoken', 'dummyToken')
           .set('Accept', 'application/json')
           .send(newFeed)
           .expect('Content-Type', /json/)
           .expect(200)
           .end(function(err, res) {
+            should.not.exist(err);
             var feed_id = res.body._id;
             request(server)
               .post('/feed/' + feed_id + '/authorizeToScrap')
@@ -527,7 +527,6 @@ describe('controllers', function() {
               .expect(200)
               .end(function(err, res) {
                 should.not.exist(err);
-                console.log(err);
                 request(server)
                   .post('/feed/' + feed_id + '/scrapNewPostsFromSource')
                   .set('idtoken',  'AUTHORIZEDUSER')
@@ -542,10 +541,7 @@ describe('controllers', function() {
                     done();
                   });
               });
-            //should.not.exist(err);
-            
           });
-        
       });
 
       afterEach(function(done){
