@@ -246,6 +246,7 @@ exports.authorizeToScrap = function(req, res) {
       if(req.headers.access_token) {
         facebookUtils.getLongLivedAccessToken(req.headers.access_token).then(function(longLivedToken) {
           var feedAuth = new FeedAuth();
+          feedAuth.uid = authentication.uid;
           feedAuth.feedId = feedId;
           feedAuth.authentication = JSON.parse(longLivedToken);
           FeedAuth.findOneAndUpdate(
