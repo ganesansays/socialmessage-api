@@ -29,23 +29,6 @@ exports.create = function(req, res) {
         }
 
         res.json(feed);
-
-        // if(req.headers.facebookaccesstoken) {
-        //   facebookUtils.getLongLivedAccessToken(req.headers.facebookaccesstoken).then(function(longLivedToken) {
-        //     var feedAuth = new FeedAuth();
-        //     feedAuth.feedId = feed._id;
-        //     feedAuth.authentication = JSON.parse(longLivedToken);
-        //     feedAuth.save(function(err){
-        //       console.error(err);
-        //       res.json(feed);
-        //     });
-        //   }).catch(function(err) {
-        //     console.error(err);
-        //     res.json(feed);
-        //   });
-        // } else {
-        //   res.json(feed);
-        // }
       });
     }
   ).catch(function(err) {
@@ -193,7 +176,7 @@ exports.scrapNewPostsFromSource = function(req, res) {
 
         if(feeds.length > 0) {
           console.log('Feed found ...' + feeds);
-          FeedAuth.find({ feedId: new ObjectId(req.swagger.params.id.value) }, function(err, feedAuths) {
+          FeedAuth.find({ uid: authentication.uid, feedId: new ObjectId(req.swagger.params.id.value) }, function(err, feedAuths) {
             if(feedAuths.length > 0) {
               console.log('FeedAuths found ...' + feedAuths);
               if(feeds[0].feedType === 'facebook') {
@@ -257,6 +240,8 @@ exports.authorizeToScrap = function(req, res) {
             { upsert: true }, 
             function(err, num, raw) {
               if(err) console.log(err);
+              console.log(raw);
+              console.log(num);
               // var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
               res.send({message: 'Scrapping is authorized on this feed'});
               // res.json(result);
