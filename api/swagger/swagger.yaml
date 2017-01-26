@@ -24,7 +24,7 @@ paths:
     get:
       description: Returns list of feeds to caller
       # used as the method name of the controller
-      operationId: getFeeds
+      operationId: list
       parameters:
       - name: idToken
         in: header
@@ -68,7 +68,7 @@ paths:
           $ref: "#/definitions/Feed"
       description: Create a feed
       # used as the method name of the controller
-      operationId: postFeed
+      operationId: create
       responses:
         "200":
           description: Newly created feed
@@ -95,7 +95,7 @@ paths:
         required: true
         type: string
       # used as the method name of the controller
-      operationId: getFeedById
+      operationId: readById
       responses:
         "200":
           description: A list of feeds.
@@ -133,7 +133,7 @@ paths:
           $ref: "#/definitions/Feed"
       description: Update an existing feed
       # used as the method name of the controller
-      operationId: putFeedById
+      operationId: updateById
       responses:
         "200":
           description: Updated an existing feed
@@ -157,7 +157,7 @@ paths:
         required: true
         type: string
       # used as the method name of the controller
-      operationId: deleteFeedById
+      operationId: deleteById
       responses:
         "200":
           description: Success

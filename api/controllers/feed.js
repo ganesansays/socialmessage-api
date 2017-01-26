@@ -7,7 +7,7 @@ var facebookScrapper = require('../modules/facebookScrapper');
 var Feed = require('../models/feed');
 
 // Create endpoint /api/socialPosts for POST
-exports.postFeed = function(req, res) {
+exports.create = function(req, res) {
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
       var feed = new Feed();
@@ -52,7 +52,7 @@ exports.postFeed = function(req, res) {
 };
 
 // Create endpoint /api/socialPosts for GET
-exports.getFeeds = function(req, res) {
+exports.list = function(req, res) {
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
         Feed.find({ uid: authentication.uid }, function(err, feeds) {
@@ -68,7 +68,7 @@ exports.getFeeds = function(req, res) {
 };
 
 // Create endpoint /api/socialPost/:socialPost_id for GET
-exports.getFeedById = function(req, res) {
+exports.readById = function(req, res) {
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
       console.log(JSON.stringify(authentication) + ' ' + JSON.stringify(req.swagger.params.id));
@@ -91,7 +91,7 @@ exports.getFeedById = function(req, res) {
 };
 
 // Create endpoint /api/socialPosts/:socialPost_id for PUT
-exports.putFeedById = function(req, res) {
+exports.updateById = function(req, res) {
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
       var feed = req.body;
@@ -154,7 +154,7 @@ exports.putFeedById = function(req, res) {
 };
 
 // Create endpoint /api/socialPosts/:socialPost_id for DELETE
-exports.deleteFeedById = function(req, res) {
+exports.deleteById = function(req, res) {
   // Use the socialPost model to find a specific socialPost and remove it
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {

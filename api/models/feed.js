@@ -18,7 +18,7 @@ var FeedSchema   = new mongoose.Schema({
     }, 
   feedType: {
       type: String,
-      enum: ['none', 'facebook', 'twitter'],
+      enum: ['none', 'facebook', 'twitter', 'instagram'],
       default: 'none'
   },
   //authentication: {type: Object, required: true},
