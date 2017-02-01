@@ -43,8 +43,11 @@ exports.scrap = function(feed, feedAuth) {
     since = 0;
   }
 
+  var FACEBOOK_API_FEED_FIELDS='id,name,picture,message,source,type,from,created_time'
+
+
   var url = '/' + process.env.FACEBOOK_API_VERSION + 
-            '/' + pageId + '/feed/?fields=' + process.env.FACEBOOK_API_FEED_FIELDS + 
+            '/' + pageId + '/feed/?fields=' + FACEBOOK_API_FEED_FIELDS + 
             '&limit=' + process.env.FACEBOOK_API_FEED_LIMIT + 
             '&access_token=' + facebookAccessToken + 
             '&since=' + since;

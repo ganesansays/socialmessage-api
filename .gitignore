@@ -46,3 +46,9 @@ reports
 stub/api
 stub/dist
 stub/
+
+#aws credos
+.aws
+.env*
+
+firebase/*

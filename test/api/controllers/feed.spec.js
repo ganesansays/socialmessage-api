@@ -467,9 +467,11 @@ describe('controllers', function() {
             '&fb_exchange_token=dummyToken')
           .reply(200, {access_token: 'dummyToken'});
 
+        var FACEBOOK_API_FEED_FIELDS='id,name,picture,message,source,type,from,created_time'
+
         nock('https://graph.facebook.com')
           .get('/' + process.env.FACEBOOK_API_VERSION + 
-            '/' + newFeed.feedHandle + '/feed/?fields=' + process.env.FACEBOOK_API_FEED_FIELDS + 
+            '/' + newFeed.feedHandle + '/feed/?fields=' + FACEBOOK_API_FEED_FIELDS + 
             '&limit=' + process.env.FACEBOOK_API_FEED_LIMIT + 
             '&access_token=dummyToken' + 
             '&since=0')

@@ -181,6 +181,8 @@ paths:
   /feed/{id}/scrapNewPostsFromSource:
     x-swagger-router-controller: feed
     post:
+        tags:
+        - feed
         consumes:
         - application/json
         produces:
@@ -250,6 +252,8 @@ paths:
     # binds a127 app logic to a route
     x-swagger-router-controller: socialPost
     get:
+      tags:
+      - SocialPost
       description: Returns list of feeds to caller
       # used as the method name of the controller
       operationId: getSocialPosts
@@ -281,6 +285,8 @@ paths:
           schema:
             $ref: "#/definitions/GeneralResponse"
     post:
+      tags:
+      - SocialPost
       consumes:
       - application/json
       produces:
@@ -321,6 +327,8 @@ paths:
     # binds a127 app logic to a route
     x-swagger-router-controller: socialPost
     get:
+      tags:
+      - SocialPost
       description: Returns the feed for the supplied id to the caller
       parameters:
       - name: idToken
@@ -348,6 +356,8 @@ paths:
           schema:
             $ref: "#/definitions/GeneralResponse"
     put:
+      tags:
+      - SocialPost
       consumes:
       - application/json
       produces:
@@ -380,6 +390,8 @@ paths:
           schema:
             $ref: "#/definitions/GeneralResponse"
     delete:
+      tags:
+      - SocialPost
       description: Deletes the feed for the provided id
       parameters:
       - name: idToken
