@@ -16,15 +16,17 @@ mongoose.connect(process.env.MONGODB_URI);
 
 var admin = require('firebase-admin');
 
-if(!process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
-  throw new Error('Firebase service account not found');
-}
+// if(!process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+//   throw new Error('Firebase service account not found');
+// }
 
-if(!process.env.FIREBASE_API_KEY) {
-  throw new Error('Firebase api key not found');
-}
+// if(!process.env.FIREBASE_API_KEY) {
+//   throw new Error('Firebase api key not found');
+// }
 
-var serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+//var serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+
+var serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_LOCATION);
 
 app.locals.defaultFirebaseApp = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),

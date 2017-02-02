@@ -51,4 +51,4 @@ stub/
 .aws
 .env*
 
-firebase/*
+#firebase/*

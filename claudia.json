@@ -1,0 +1,10 @@
+{
+  "lambda": {
+    "role": "socialmessage-api-executor",
+    "name": "socialmessage-api",
+    "region": "ap-southeast-1"
+  },
+  "api": {
+    "id": "vjfgn8hm1b"
+  }
+}
