@@ -146,7 +146,7 @@ paths:
         "200":
           description: Updated an existing feed
           schema:
-            $ref: "#/definitions/PutResponse"
+            $ref: "#/definitions/GeneralResponse"
         # responses may fall through to errors
         default:
           description: Error
@@ -440,8 +440,6 @@ definitions:
       - feedName
       - feedType
     properties:
-      _id: 
-        type: string
       uid:
         type: string
       feedName:
@@ -450,8 +448,6 @@ definitions:
       feedHandle:
         type: string
         maxLength: 50
-      __V:
-        type: string
       feedType:
         type: string
         default: none

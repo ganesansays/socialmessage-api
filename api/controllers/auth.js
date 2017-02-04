@@ -14,12 +14,12 @@ module.exports.authenticate = function (idToken) {
               deferred.reject({message: 'Invalid authentication token'});
           }
           }).catch(function(error) {
-              console.error('Error auth token ' + error);
+              console.error('Error auth token ' + JSON.stringify(error));
               deferred.reject({message: 'Invalid authentication token'});
           });
       }
   } catch(ex) {
-      console.error(ex);
+      console.error('auth->authenticate: Exception: ' + ex);
       deferred.reject({message: 'Server internal error'});
   }
   return deferred.promise;

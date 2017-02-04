@@ -17,7 +17,7 @@ var q = require('q');
 //****************************************************************************//
 exports.scrap = function(feed, feedAuth) {
   var uid = feed.uid;
-  var feedId = feed._id; 
+  var feedId = feed.feedHandle; 
   var facebookAccessToken = feedAuth.authentication.access_token; 
   var pageId = feed.feedHandle;
   var since = feed.scrappedSince;
@@ -140,7 +140,7 @@ var createPosts = function(uid, feedId, data, cb) {
   if(data && data.length > 0) {
     for (var i = 0, len = data.length; i < len; i++) {
       var socialPost = {};
-      socialPost.feedId = feedId;
+      socialPost.feedHandle = feedId;
       socialPost.uid = uid;
       socialPost.profileId = data[i].id; 
       socialPost.profileName =  data[i].from.name;
@@ -160,7 +160,7 @@ var createPosts = function(uid, feedId, data, cb) {
       posts.push(socialPost);
     }
 
-    SocialPost.insertMany(posts, function(err, socialPosts) {
+    SocialPost.batchPut(posts, function(err, socialPosts) {
       if (err) {
         console.log(err);
         cb(null);

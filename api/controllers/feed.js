@@ -40,30 +40,57 @@ exports.create = function(req, res) {
 exports.list = function(req, res) {
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
-        Feed.find({ uid: authentication.uid }, function(err, feeds) {
-          if (err)
-            return res.send(err);
+      console.log(authentication.uid);
+        Feed.get({ uid: authentication.uid }, function(err, feeds) {
+          if (err) {
+            console.log(JSON.stringify(err));
+            return res.status(400).send({message: 'Error finding feed'});
+          }
 
-          res.json(feeds);
+          
+          if(feeds instanceof Array) {
+            res.json(feeds);
+          } else {
+            var feedArray = [];
+            if(feeds) feedArray.push(feeds);
+            console.log('Feeds: ' + JSON.stringify(feedArray));
+            res.json(feedArray);
+          }
+          
         });
     }
   ).catch(function(err) {
-    res.status(403).send(err);
+    console.log(JSON.stringify(err));
+    if(err && err.message) {
+      res.status(403).send(err);
+    } else {
+      res.status(403).send({message: 'Error Authenticating user'});
+    }
   });
 };
 
 // Create endpoint /api/socialPost/:socialPost_id for GET
 exports.readById = function(req, res) {
+  console.log('readyById called ...');
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
       console.log(JSON.stringify(authentication) + ' ' + JSON.stringify(req.swagger.params.id));
-      Feed.find({}, function(err, feed) {
-        console.log(feed);
-        if (err)
+      Feed.get({uid: authentication.uid, feedHandle: req.swagger.params.id.value}, function(err, feed) {
+        console.log(feed.feedHandle);
+        if (err) {
+          console.log(JSON.parse(err));
           return res.send(err);
+        }
 
-        if(feed && feed.length > 0) {
-          res.json(feed);
+        if(feed) {
+          if(feed instanceof Array) {
+            res.json(feed);
+          } else {
+            var feedArray = [];
+            if(feed) feedArray.push(feed);
+            console.log('Feeds: ' + JSON.stringify(feedArray));
+            res.json(feedArray);
+          }
         } else {
           res.status(404).send({message: 'Feed not found'});
         }
@@ -83,51 +110,23 @@ exports.updateById = function(req, res) {
 
       var feedToUpdate = {
         feedName: feed.feedName,
-        feedHandle: feed.feedHandle,
         feedType: feed.feedType,
         feedStatus: feed.feedStatus,
-        feedHandle: feed.feedHandle
+        hashTag: feed.hashTag,
+        scrappedSince: feed.scrappedSince
       };
-
-      var unset = {};
-
-      if(feed.hashTag) feedToUpdate.hashTag = feed.hashTag;
-      else unset.hashTag = 1;
 
       Feed.update(
         { 
           uid: authentication.uid,
-          _id: new ObjectId(req.swagger.params.id.value) 
+          feedHandle: req.swagger.params.id.value
         }, 
         feedToUpdate, 
-        {
-          $unset: unset
-        },
-        function(err, num, raw) {
+        function(err, num) {
           if (err) {
             return res.send(err);
           } else {
-            // if(req.headers.facebookaccesstoken) {
-            //   facebookUtils.getLongLivedAccessToken(req.headers.facebookaccesstoken).then(function(longLivedToken) {
-            //     var feedAuth = new FeedAuth();
-            //     feedAuth.feedId = feed._id;
-            //     feedAuth.authentication = JSON.parse(longLivedToken);
-            //     FeedAuth.findOneAndUpdate({feedId: new ObjectId(req.swagger.params.id.value)}, feedAuth, {upsert:true}, function(err){
-            //       if(err) console.log(err);
-            //       var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
-            //       res.json(result);
-            //     });
-            //   }).catch(function(err) {
-            //     if(err) console.log(err);
-            //     var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
-            //     res.json(result);
-            //   });
-            // } else {
-            //   //console.log(num);
-            //   var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
-            //   res.json(result);
-            // }
-            var result = { recordsAffected: num.nModified, message: num.nModified + ' record updated' };
+            var result = { message: 'Update sucessfull'};
             res.send(result);
           }
         }
@@ -142,20 +141,15 @@ exports.updateById = function(req, res) {
 
 // Create endpoint /api/socialPosts/:socialPost_id for DELETE
 exports.deleteById = function(req, res) {
+  console.log('Delete by id called');
   // Use the socialPost model to find a specific socialPost and remove it
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
-      Feed.remove({ uid: authentication.uid, _id: new ObjectId(req.swagger.params.id.value) }, function(err, num, raw) {
+      Feed.delete({ uid: authentication.uid, feedHandle: req.swagger.params.id.value }, function(err, num, raw) {
         if (err) {
           res.json(err); 
         }
-          
-        
-        if(num.result.n > 0) {
-          res.json({message: 'Record deleted sucessfully!'});
-        } else {
-          res.json({message: 'Record not found!'});
-        }
+        res.json({message: 'Deletion sucessfull!'});
       });
     }
   ).catch(function(err) {
@@ -168,21 +162,21 @@ exports.scrapNewPostsFromSource = function(req, res) {
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
       console.log('authenticated ... ' + authentication);
-      Feed.find({ uid: authentication.uid, _id: new ObjectId(req.swagger.params.id.value) }, function(err, feeds) {
+      Feed.get({ uid: authentication.uid, feedHandle: req.swagger.params.id.value }, function(err, feed) {
         if (err) {
           console.log(err);
           return res.send(err);
         }
 
-        if(feeds.length > 0) {
-          console.log('Feed found ...' + feeds);
-          FeedAuth.find({ uid: authentication.uid, feedId: new ObjectId(req.swagger.params.id.value) }, function(err, feedAuths) {
-            if(feedAuths.length > 0) {
-              console.log('FeedAuths found ...' + feedAuths);
-              if(feeds[0].feedType === 'facebook') {
+        if(feed) {
+          console.log('Feed found ...' + feed);
+          FeedAuth.get({ uid: authentication.uid, feedHandle: feed.feedHandle}, function(err, feedAuth) {
+            if(feedAuth) {
+              console.log('FeedAuths found ...' + feedAuth);
+              if(feed.feedType === 'facebook') {
                 facebookScrapper.scrap(
-                  feeds[0],
-                  feedAuths[0]
+                  feed,
+                  feedAuth
                 ).then(function(result) {
                   console.log('Scrapped ...' + JSON.stringify(result));
                   console.log(authentication.uid);
@@ -190,7 +184,7 @@ exports.scrapNewPostsFromSource = function(req, res) {
                   Feed.update(
                   {
                     uid: authentication.uid,
-                    _id: new ObjectId(req.swagger.params.id.value) 
+                    feedHandle: req.swagger.params.id.value
                   }, 
                   { 
                     scrappedSince: result.since
@@ -223,21 +217,19 @@ exports.scrapNewPostsFromSource = function(req, res) {
 }
 
 exports.authorizeToScrap = function(req, res) {
+  console.log('Calling authorizeToScrap');
   authController.authenticate(req.headers.idtoken).then(
     function(authentication) {
-      var feedId = new ObjectId(req.swagger.params.id.value)
+      // var feedId = new ObjectId(req.swagger.params.id.value)
       if(req.headers.access_token) {
         facebookUtils.getLongLivedAccessToken(req.headers.access_token).then(function(longLivedToken) {
           var feedAuth = new FeedAuth();
-          feedAuth.uid = authentication.uid;
-          feedAuth.feedId = feedId;
           feedAuth.authentication = JSON.parse(longLivedToken);
-          FeedAuth.findOneAndUpdate(
+          FeedAuth.update(
             {
               uid: authentication.uid, 
-              feedId: new ObjectId(req.swagger.params.id.value)
+              feedHandle: req.swagger.params.id.value
             }, feedAuth, 
-            { upsert: true }, 
             function(err, num, raw) {
               if(err) console.log(err);
               console.log(raw);

@@ -1,5 +1,5 @@
 // Load required packages
-var mongoose = require('mongoose');
+var mongoose = require('dynamoose');
 
 // Define Social Post schema
 var SocialPostSchema   = new mongoose.Schema({

@@ -2,7 +2,9 @@
 
 var SwaggerExpress = require('swagger-express-mw');
 var app = require('express')();
-var mongoose = require('mongoose');
+// var mongoose = require('mongoose');
+
+var dynamoose = require('dynamoose');
 
 require('dotenv').load(); 
 module.exports = app; // for testing
@@ -12,7 +14,9 @@ var config = {
 };
 
 // Connect to the socialPosts MongoDB
-mongoose.connect(process.env.MONGODB_URI);
+// mongoose.connect(process.env.MONGODB_URI);
+
+dynamoose.local();
 
 var admin = require('firebase-admin');
 

@@ -1,5 +1,5 @@
 // Load required packages
-var mongoose = require('mongoose');
+var mongoose = require('dynamoose');
 
 // Define Social Post schema
 var FeedSchema   = new mongoose.Schema({
@@ -8,13 +8,13 @@ var FeedSchema   = new mongoose.Schema({
   feedHandle: {
       type: String, 
       required: true,
-      validate: {
-          validator: function(v) {
-              var re = /[^\s-]/;
-              return ( v === null || v.trim().length < 1 || re.test(v));
-          }, 
-          message: "Feed handle cannot have space"
-      }
+    //   validate: {
+    //       validator: function(v) {
+    //           var re = /[^\s-]/;
+    //           return ( v === null || v.trim().length < 1 || !re.test(v));
+    //       }, 
+    //       message: "Feed handle cannot have space"
+    //   }
     }, 
   feedType: {
       type: String,

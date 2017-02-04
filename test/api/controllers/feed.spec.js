@@ -29,12 +29,13 @@ describe('controllers', function() {
         }
       }
     });
-   done();
+    Feed.batchDelete([{uid: 'ANOTHERAUTHORIZEDUSER'},{uid: 'AUTHORIZEDUSER'}], function(err) {
+      if(err) console.log(err);
+      done();
+    });
   });
   describe('feed', function() {
     describe('GET /feeds', function() {
-      Feed.collection.drop();
-
       var newFeed = new Feed({
         'uid': 'ANOTHERAUTHORIZEDUSER',
         'feedName': 'Feed Name',
@@ -77,14 +78,11 @@ describe('controllers', function() {
           });
       });
 
-      afterEach(function(done){
-        Feed.collection.drop();
-        done();
-      });
+      // afterEach(function(done){
+      //   done();
+      // });
     });
     describe('GET /feeds', function() {
-      Feed.collection.drop();
-
       var newFeed = {
         'uid': 'AUTHORIZEDUSER',
         'feedName': 'Feed Name',
@@ -109,27 +107,16 @@ describe('controllers', function() {
           .end(function(err, res) {
             should.not.exist(err);
             res.body.length.should.eql(1);
-            res.body[0]._id.should.not.eql(undefined);
-            res.body[0]._id.should.not.eql('');
             res.body[0].uid.should.eql(newFeed.uid);
             res.body[0].feedName.should.eql(newFeed.feedName);
             res.body[0].feedHandle.should.eql(newFeed.feedHandle);
             res.body[0].feedType.should.eql(newFeed.feedType);
             res.body[0].feedStatus.should.eql('scheduled');
-
             done();
           });
       });
-
-      afterEach(function(done){
-        Feed.collection.drop();
-        done();
-      });
-
     });
     describe('POST /feeds', function() {
-      Feed.collection.drop();
-
       var newFeed = new Feed({
         'feedName': 'Feed Name',
         'feedHandle': 'feedHandle',
@@ -175,41 +162,21 @@ describe('controllers', function() {
           .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            res.body._id.should.not.eql(undefined);
             res.body.uid.should.eql('AUTHORIZEDUSER');
             done();
           });
       });
-
-      afterEach(function(done){
-        Feed.collection.drop();
-        done();
-      });
     });
     describe('GET /feed', function() {
-      Feed.collection.drop();
-
       var newFeedId = '';
 
       beforeEach(function(done){
-        var newFeed = new Feed({
-          'uid': 'AUTHORIZEDUSER',
-          'feedName': 'Feed Name',
-          'feedHandle': 'feedHandle',
-          'feedType': 'none',
-          'authentication': {}
-        });
-        newFeed.save(function(err) {
-          newFeedId = newFeed._id;
-          Feed.find({}, function(err, feeds) {
-            done();
-          })
-        });
+        done();
       });
 
       it('should return 403 - Invalid authentication token', function(done) {
         request(server)
-          .get('/feed/' + newFeedId)
+          .get('/feed/feedHandle')
           .set('idtoken',  'UNAUTHORIZEDUSER')
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
@@ -222,8 +189,16 @@ describe('controllers', function() {
       });
       
       it('should get the feed requested', function(done) {
-        request(server)
-          .get('/feed/' + newFeedId)
+        var newFeed = new Feed({
+          'uid': 'AUTHORIZEDUSER',
+          'feedName': 'Feed Name',
+          'feedHandle': 'feedHandle',
+          'feedType': 'none',
+          'authentication': {}
+        });
+        newFeed.save(function(err) {
+          request(server)
+          .get('/feed/feedHandle')
           .set('idtoken', 'AUTHORIZEDUSER')
           .set('Accept', 'application/json')
           .expect('Content-Type', /json/)
@@ -232,18 +207,13 @@ describe('controllers', function() {
             should.not.exist(err);
             var feeds = res.body;
             feeds.length.should.eql(1);
-            new ObjectId(feeds[0]._id).should.eql(newFeedId);
             done();
           });
-      });
-      afterEach(function(done){
-        Feed.collection.drop();
-        done();
+        });
+        
       });
     });
     describe('PUT /feed', function() {
-      Feed.collection.drop();
-
       var newFeed = {
         'uid': 'ANOTHERAUTHORIZEDUSER',
         'feedName': 'Feed Name',
@@ -271,7 +241,7 @@ describe('controllers', function() {
 
       it('should return 403 - Invalid authentication token', function(done) {
         request(server)
-          .put('/feed/' + mongooseFeed._id)
+          .put('/feed/feedHandle')
           .set('idtoken',  'UNAUTHORIZEDUSER')
           .set('facebookaccesstoken', 'dummyToken')
           .set('Accept', 'application/json')
@@ -286,7 +256,7 @@ describe('controllers', function() {
       });
       it('should not updated any feed', function(done) {
         request(server)
-          .put('/feed/' + mongooseFeed._id)
+          .put('/feed/feedHandle')
           .set('idtoken',  'AUTHORIZEDUSER')
           .set('facebookaccesstoken', 'dummyToken')
           .set('Accept', 'application/json')
@@ -295,19 +265,12 @@ describe('controllers', function() {
           .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            res.body.recordsAffected.should.eql(0);
-            
+            res.body.message.should.eql('Update sucessfull');
             done();
           });
       });
-      afterEach(function(done){
-        Feed.collection.drop();
-        done();
-      });
     });
     describe('PUT /feed', function() {
-      Feed.collection.drop();
-
       var newFeed = {
         'uid': 'AUTHORIZEDUSER',
         'feedName': 'Feed Name',
@@ -344,22 +307,13 @@ describe('controllers', function() {
           .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-
-            res.body.recordsAffected.should.eql(1);
-
+            should.not.exist(err);
+            res.body.message.should.eql('Update sucessfull');
             done();
           });
       });
-
-      afterEach(function(done){
-        Feed.collection.drop();
-        done();
-      });
-
     });
     describe('DELETE /feed', function() {
-      Feed.collection.drop();
-
       var newFeed = {
         'uid': 'ANOTHERAUTHORIZEDUSER',
         'feedName': 'Feed Name',
@@ -378,7 +332,7 @@ describe('controllers', function() {
 
       it('should return 403 - Invalid authentication token', function(done) {
         request(server)
-          .delete('/feed/' + mongooseFeed._id)
+          .delete('/feed/feedHandle')
           .set('idtoken',  'UNAUTHORIZEDUSER')
           .set('Accept', 'application/json')
           .send(newFeed)          
@@ -393,7 +347,7 @@ describe('controllers', function() {
 
       it('should not delete any feed', function(done) {
         request(server)
-          .delete('/feed/' + mongooseFeed._id)
+          .delete('/feed/feedHanlde')
           .set('idtoken',  'AUTHORIZEDUSER')
           .set('Accept', 'application/json')
           .send(newFeed)
@@ -401,14 +355,13 @@ describe('controllers', function() {
           .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            res.body.should.eql({message: 'Record not found!'});
+            res.body.should.eql({message: 'Deletion sucessfull!'});
+            console.log(err);
             done();
           });
       });
     });
     describe('DELETE /feed', function() {
-      Feed.collection.drop();
-
       var newFeed = {
         'uid': 'AUTHORIZEDUSER',
         'feedName': 'Feed Name',
@@ -435,14 +388,12 @@ describe('controllers', function() {
           .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            res.body.should.eql({message: 'Record deleted sucessfully!'});
+            res.body.should.eql({message: 'Deletion sucessfull!'});
             done();
           });
       });
     });
     describe('POST /feed/{id}/scrapNewPostFromSource', function() {
-      Feed.collection.drop();
-
       var newFeed = {
         'uid': 'AUTHORIZEDUSER',
         'feedName': 'testFeed',
@@ -487,14 +438,13 @@ describe('controllers', function() {
           ]});
 
         mongooseFeed.save(function(err) {
-          console.log(mongooseFeed._id);
           done();
-        })
+        });
       })
 
       it('should return 403 - Invalid authentication token', function(done) {
         request(server)
-          .post('/feed/' + mongooseFeed._id + '/scrapNewPostsFromSource')
+          .post('/feed/feedHandle/scrapNewPostsFromSource')
           .set('idtoken',  'UNAUTHORIZEDUSER')
           .set('facebookaccesstoken', 'dummyToken')
           .set('Accept', 'application/json')
@@ -518,9 +468,8 @@ describe('controllers', function() {
           .expect(200)
           .end(function(err, res) {
             should.not.exist(err);
-            var feed_id = res.body._id;
             request(server)
-              .post('/feed/' + feed_id + '/authorizeToScrap')
+              .post('/feed/feedHandle/authorizeToScrap')
               .set('idtoken',  'AUTHORIZEDUSER')
               .set('access_token', 'dummyToken')
               .set('Accept', 'application/json')
@@ -530,7 +479,7 @@ describe('controllers', function() {
               .end(function(err, res) {
                 should.not.exist(err);
                 request(server)
-                  .post('/feed/' + feed_id + '/scrapNewPostsFromSource')
+                  .post('/feed/feedHandle/scrapNewPostsFromSource')
                   .set('idtoken',  'AUTHORIZEDUSER')
                   .set('facebookaccesstoken', 'dummyToken')
                   .set('Accept', 'application/json')
@@ -544,11 +493,6 @@ describe('controllers', function() {
                   });
               });
           });
-      });
-
-      afterEach(function(done){
-        Feed.collection.drop();
-        done();
       });
     });
   });
