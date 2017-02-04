@@ -2,9 +2,7 @@ var Feed = require('../models/feed');
 var FeedAuth = require('../models/feedAuth');
 var authController = require('./auth');
 var facebookUtils = require('../helpers/facebookUtils');
-var ObjectId = require('mongoose').Types.ObjectId; 
 var facebookScrapper = require('../modules/facebookScrapper');
-var Feed = require('../models/feed');
 
 // Create endpoint /api/socialPosts for POST
 exports.create = function(req, res) {
@@ -46,17 +44,14 @@ exports.list = function(req, res) {
             console.log(JSON.stringify(err));
             return res.status(400).send({message: 'Error finding feed'});
           }
-
-          
-          if(feeds instanceof Array) {
-            res.json(feeds);
-          } else {
-            var feedArray = [];
-            if(feeds) feedArray.push(feeds);
-            console.log('Feeds: ' + JSON.stringify(feedArray));
-            res.json(feedArray);
-          }
-          
+ 
+          // if(feeds instanceof Array) {
+          //   res.json(feeds);
+          // } else {
+          var feedArray = [];
+          if(feeds) feedArray.push(feeds);
+          res.json(feedArray);
+          // }
         });
     }
   ).catch(function(err) {

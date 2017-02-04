@@ -19,6 +19,7 @@ var config = {
 dynamoose.local();
 
 var admin = require('firebase-admin');
+var serviceAccount = {};
 
 // if(!process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
 //   throw new Error('Firebase service account not found');
@@ -28,9 +29,11 @@ var admin = require('firebase-admin');
 //   throw new Error('Firebase api key not found');
 // }
 
-//var serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
-
-var serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_LOCATION);
+if(process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+} else {
+  serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_LOCATION);
+}
 
 app.locals.defaultFirebaseApp = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
