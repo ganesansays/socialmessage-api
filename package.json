@@ -40,7 +40,7 @@
   },
   "scripts": {
     "start": "node app.js",
-    "test": "gulp test",
+    "test": "gulp test --timeout 20000",
     "deploy": "claudia update set-version --version latest --set-env-from-json .env-variable.json"
   },
   "pre-commit": [
