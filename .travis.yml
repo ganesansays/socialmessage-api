@@ -1,6 +1,18 @@
 language: node_js
 node_js:
   - "6"
+jdk:
+  - openjdk6
+  - openjdk7
+  - oraclejdk7
+
+install:
+  - mkdir /tmp/dynamodb
+  - wget -O - https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.tar.gz | tar xz --directory /tmp/dynamodb
+
+before_script:
+  - mv /tmp/dynamodb/* /tmp/dynamodb/dynamodb
+  - java -Djava.library.path=/tmp/dynamodb/dynamodb/DynamoDBLocal_lib -jar /tmp/dynamodb/dynamodb/DynamoDBLocal.jar -inMemory &
 services: mongodb
 cache:
   yarn: true
