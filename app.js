@@ -16,7 +16,7 @@ var config = {
 // Connect to the socialPosts MongoDB
 // mongoose.connect(process.env.MONGODB_URI);
 
-dynamoose.local();
+// dynamoose.local();
 
 var admin = require('firebase-admin');
 var serviceAccount = {};
